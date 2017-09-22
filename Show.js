@@ -299,16 +299,143 @@ function ViewTweets(data,topic) {
 }				 
 
 function Stream()
+{         
+
+          var N=prompt("Enter number of Topics you want to Stream ");
+		  
+		  var Topics=[];
+		  
+		  for(var i=0;i<N;i++)
+		  {
+		           var Topic=prompt("Enter Topic")
+		           Topics.push(Topic);
+		  
+		  
+		  }
+		  
+          var stream = T.stream('statuses/filter', { track: Topics })
+		  console.log("\n");
+		  console.log("STREAMING TOPICS");
+		  console.log("\n");
+		  stream.on('tweet', function (tweet) {console.log(tweet)})
+
+}
+
+function ScheduleTweets()
 {
 
 
-          
+    Tweets=[];
+	Delay=[];
+	
+	var Number=prompt("How many tweets do you want to schedule?");
+	
+	for(var i=0;i<Number;i++)
+	{
+	
+	  console.log("\n");
+	  var tweet=prompt("Enter Tweet");
+	  console.log("\n");
+	  var delay=prompt("Delay of? (in seconds)");
+	  console.log("\n");
+	  Tweets.push(tweet);
+	  Delay.push(delay*1000);
+	
+	}
+    
+	Tweet=""
+    for(var i=0;i<Tweets.length;i++)
+	{
+	    
+		Tweet=Tweets[i];
+	    setTimeout(PostSchedule,Delay[i]);
+		if(i==(Tweets.length-1))
+		{
+		   Main_Menu();
+		}
+	
+	}
+	
+	function PostSchedule()
+    {
 
+       T.post('statuses/update', { status: Tweet}, function(err, data, response) {console.log("Tweet posted sucessfully!")})
 
+    }
+	
 
+}
 
+function Autoreply()
+{
+       Reply="";
+	   Msg="Thank You for following";
+	   
+       function Thank_User(event)
+       {
+       
+	   var name=event.source.name;
+	   var screenName=event.source.screen_name;
+	   console.log("\n");
+	   console.log("Followed by "+name+" "+screenName);
+	   T.post('statuses/update', { status: '@'+screenName+' '+Msg}, function(err, data, response) {})
+	   console.log("\n");
+	   
+       }
+	   
+      function followed(event)
+      {
 
+       var name=event.source.name;
+	   var screenName=event.source.screen_name;
+	   T.post('statuses/update', { status: '@'+screenName+" "+Reply}, function(err, data, response) {})
+	   console.log("\n");
 
+      }
+
+       console.log("Do you want to thank followers (T) for following , send Custom message to new Followers (C) or set auto reply for new tweets ? (A)");
+	   
+	   var Re=prompt("Answer T , C or A");
+	   
+	   if(Re=="T")
+	   {
+	   
+	      console.log("\n");
+	      console.log("Waiting for followers...");
+		  console.log("\n");
+	      var stream = T.stream('user');
+		  stream.on('follow',Thank_User);
+	   
+	   }
+	   else if(Re=="A")
+	   {
+	   
+	      console.log("\n");
+	      console.log("Waiting for followers...");
+	      console.log("\n");
+	      var stream=T.stream('user');
+	      Reply=prompt("What auto reply message would you like to set?");
+	      stream.on('follow',followed);
+	   
+	   }
+	   else if(Re=="C")
+	   {
+	   
+	      console.log("\n");
+	      console.log("Waiting for followers...");
+		  console.log("\n");
+	      var stream=T.stream('user');
+	      Msg=prompt("What custom message would you like to send your new followers");
+	      stream.on('follow',followed);
+	   
+	   }	   
+	   else{
+	   
+	   
+	      Main_Menu();
+	   
+	   
+	   }
 
 
 }
@@ -378,8 +505,10 @@ function Main_Menu()
            console.log("1.Search Tweets");
            console.log("2.Post a Tweet");
 	       console.log("3.Post Random Tweet");
-		   console.log("4. Stream Account");
-	       console.log("5.Exit");
+		   console.log("4.Schedule Tweets");
+		   console.log("5.Stream Account");
+		   console.log("6.Autoreply Mode");
+	       console.log("7.Exit");
 		   console.log("\n");
 	       console.log("\n");
 	
@@ -397,6 +526,13 @@ function Main_Menu()
 		  }
 		  else if(choice==4)
 		  {
+		  
+		    
+		    ScheduleTweets();
+		  
+		  }
+		  else if(choice==7)
+		  {
 		    
 			console.log("\n");
 			console.log("EXIT");
@@ -404,7 +540,20 @@ function Main_Menu()
 		    prompts.close();
 		  
 		  }
+		  else if(choice==5)
+		  {
 		  
+		    Stream();
+		  
+		  }
+		  else if(choice==6)
+		  {
+		  
+		    console.log("\n");
+			Autoreply();
+			console.log("\n");
+		  
+		  }
 		  })
 
 }
